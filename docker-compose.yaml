@@ -1,0 +1,26 @@
+version: '3.7'
+
+services:
+  
+  letsencrypt-provisioner:
+    build: .
+    volumes:
+      - /tmp:/etc/letsencrypt/
+    environment:
+        - CERTBOT_EMAIL=your@email.address
+        - PROXY_ADDRESS=docker-flow-proxy
+        - STAGING=false
+        - EXCLUDE_DOMAINS="somedomain2.net,otherdomain3.org"
+    deploy:
+      placement:
+        constraints:
+          - "node.role==<ROLE ID>"
+      labels:
+        - com.df.aclName=__acme_letsencrypt_companion # arbitrary aclName to make sure it's on top on HAProxy's list
+        - com.df.notify=true
+        - com.df.distribute=true
+        # The LetsEncrypt HTTP-01 challenge path:
+        # https://letsencrypt.org/docs/challenge-types/
+        - com.df.servicePath=/.well-known/acme-challenge
+        - com.df.port=80
+
